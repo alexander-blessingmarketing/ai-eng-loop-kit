@@ -1,0 +1,65 @@
+{
+  "version": "0.4.1",
+  "mode": "new",
+  "language": "de",
+  "agents": [
+    "claude"
+  ],
+  "memory": "CLAUDE.md",
+  "createdWith": "create-ai-eng-app",
+  "platform": "web",
+  "stack": {
+    "framework": "nextjs",
+    "backend": null,
+    "test": "vitest",
+    "e2e": "playwright",
+    "ui": "shadcn",
+    "deploy": "vercel",
+    "packageManager": "npm"
+  },
+  "commands": {
+    "dev": "npm run dev",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run lint",
+    "typecheck": "npm run typecheck"
+  },
+  "probe": {
+    "kind": "http",
+    "baseUrl": "http://localhost:3000"
+  },
+  "managed": {
+    ".claude/skills": [
+      "architecture",
+      "audit",
+      "build",
+      "cleanup",
+      "deploy",
+      "dsgvo",
+      "e2e-tests",
+      "help",
+      "init",
+      "qa",
+      "refine",
+      "security-check",
+      "starter-kit-migration",
+      "tasks",
+      "verify-setup",
+      "write-spec"
+    ],
+    ".claude/rules": [
+      "general.md",
+      "security.md"
+    ],
+    ".claude/agents": [
+      "qa-engineer.md"
+    ],
+    "docs/production": [
+      "database-optimization.md",
+      "error-tracking.md",
+      "performance.md",
+      "rate-limiting.md",
+      "security-headers.md"
+    ]
+  }
+}

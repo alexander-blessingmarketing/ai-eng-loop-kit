@@ -1,0 +1,102 @@
+name: E2E
+
+# Playwright gegen die Vercel-Preview des Pull Requests — also gegen ein echtes
+# Deployment, bevor etwas nach main geht.
+#
+# ─── Der Schalter ──────────────────────────────────────────────────────────
+# Repository-Variable `VERCEL_CONNECTED` (Settings → Secrets and variables →
+# Actions → Variables) entscheidet, in welchem der beiden Zustaende dieser
+# Workflow laeuft:
+#
+#   nicht gesetzt / != "true"
+#     Vercel ist nicht angebunden, es kann keine Preview geben. Der Job
+#     ueberspringt alles und endet gruen. In diesem Zustand darf er NICHT als
+#     Required Status Check im Ruleset stehen — er wuerde Schutz vortaeuschen.
+#
+#   "true"
+#     Der Job ist ein echtes Gate: Bleibt die Preview aus oder faellt ein Test
+#     durch, scheitert er. Erst jetzt gehoert er ins Ruleset
+#     (.github/rulesets/README.md).
+#
+# Vorher war das Ueberspringen implizit — `continue-on-error` beim Warten plus
+# ein bedingter Skip. Ergebnis: gruener Check ohne einen einzigen Test, und
+# 6-7 Minuten Laufzeit fuer nichts, weil das Timeout vollstaendig abgewartet
+# und vorher 300 MB Browser heruntergeladen wurden.
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playwright:
+    name: Playwright (gegen Vercel-Preview)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Vercel-Anbindung pruefen
+        id: gate
+        run: |
+          if [ "${{ vars.VERCEL_CONNECTED }}" = "true" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::VERCEL_CONNECTED=true — E2E laeuft als echtes Gate."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::VERCEL_CONNECTED ist nicht 'true' — E2E uebersprungen. Dieser Check darf so NICHT als Required Status Check im Ruleset stehen. Nach dem Verknuepfen von Vercel die Repo-Variable auf 'true' setzen."
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+
+      # Zuerst auf die Preview warten, DANN erst installieren. Ohne Preview
+      # gibt es nichts zu testen — der 300-MB-Browser-Download waere umsonst.
+      - name: Auf Vercel-Preview warten
+        if: steps.gate.outputs.run == 'true'
+        id: vercel-preview
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # 180 statt 600: Eine Preview ist entweder in wenigen Minuten da oder
+          # gar nicht. Laenger zu warten verzoegert jeden PR, ohne etwas zu retten.
+          max_timeout: 180
+
+      - name: Preview-URL vorhanden?
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          if [ -z "${{ steps.vercel-preview.outputs.url }}" ]; then
+            echo "::error::Keine Preview-URL erhalten, obwohl VERCEL_CONNECTED=true gesetzt ist. Entweder ist die Vercel-GitHub-Integration nicht (mehr) aktiv, oder das Deployment ist fehlgeschlagen. Dieser Job scheitert bewusst, statt gruen zu melden, ohne getestet zu haben."
+            exit 1
+          fi
+          echo "Preview: ${{ steps.vercel-preview.outputs.url }}"
+
+      - name: Setup Node.js
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.gate.outputs.run == 'true'
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Playwright browsers
+        if: steps.gate.outputs.run == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright
+        if: steps.gate.outputs.run == 'true'
+        run: npx playwright test
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.vercel-preview.outputs.url }}
+
+      - name: Upload report
+        if: always() && steps.gate.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

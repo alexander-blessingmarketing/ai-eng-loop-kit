@@ -1,0 +1,21 @@
+# Zeilenenden repo-weit auf LF festnageln.
+#
+# Ohne diese Datei greift core.autocrlf=true (global gesetzt) und wandelt bei
+# jedem Checkout auf CRLF. Genau das ist im Vorgaenger-Kit passiert: Danach
+# meldete jeder Diff jede Datei als komplett geaendert, obwohl sich real
+# nichts geaendert hatte — Vergleiche mit dem Upstream-Kit werden unlesbar.
+* text=auto eol=lf
+
+# Shell-Skripte muessen LF haben, sonst schlaegt der Shebang fehl.
+*.sh text eol=lf
+
+# Binaerdateien nie anfassen.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

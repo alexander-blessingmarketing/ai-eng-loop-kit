@@ -1,0 +1,20 @@
+name: Deploy (manual fallback)
+
+# Vercel-Git-Integration kümmert sich standardmäßig um Deploys.
+# Dieser Workflow ist nur Fallback via Vercel Deploy-Hook (workflow_dispatch).
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Deploy-Hook
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo "::error::VERCEL_DEPLOY_HOOK secret nicht gesetzt"
+            exit 1
+          fi
+          curl -sf -X POST "$VERCEL_DEPLOY_HOOK" -w "\nHTTP Status: %{http_code}\n"
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}

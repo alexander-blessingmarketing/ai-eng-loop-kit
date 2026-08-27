@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# Verhindert direkte Pushes auf main.
+#
+# Warum lokal statt auf GitHub: Branch Protection und Rulesets brauchen bei
+# privaten Repos GitHub Pro. In einem Free-Plan ist dieser Hook die einzige
+# Bremse — er ist schwächer (nur auf diesem Rechner, mit Escape-Hatch), aber
+# er fängt genau den Fall, um den es geht: den versehentlichen Push.
+#
+# Aktivieren (einmalig pro Klon):
+#   git config core.hooksPath .githooks
+#
+# Bewusst umgehen, wenn es wirklich sein muss:
+#   ALLOW_MAIN_PUSH=1 git push origin main
+#
+set -euo pipefail
+
+PROTECTED="main"
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  branch="${remote_ref#refs/heads/}"
+
+  [ "$branch" = "$PROTECTED" ] || continue
+
+  if [ "${ALLOW_MAIN_PUSH:-}" = "1" ]; then
+    echo "pre-push: Push auf '$PROTECTED' per ALLOW_MAIN_PUSH=1 zugelassen." >&2
+    continue
+  fi
+
+  cat >&2 <<EOF
+
+  ✋ Push auf '$PROTECTED' blockiert.
+
+  In diesem Projekt geht nichts direkt nach main — Änderungen laufen über
+  einen Pull Request. Grund: .github/workflows/e2e.yml triggert nur auf
+  'pull_request' und testet gegen die Vercel-Preview. Ohne PR läuft dieser
+  Workflow nie, und zwar lautlos.
+
+  Stattdessen:
+    git switch -c feat/PROJ-X-name    # falls noch auf main
+    git push -u origin HEAD
+    gh pr create --base main
+
+  Wenn es wirklich sein muss:
+    ALLOW_MAIN_PUSH=1 git push origin $PROTECTED
+
+EOF
+  exit 1
+done
+
+exit 0
