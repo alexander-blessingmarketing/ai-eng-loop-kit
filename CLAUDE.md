@@ -142,10 +142,14 @@ docs/
   Notausgang, wenn es wirklich sein muss: `ALLOW_MAIN_PUSH=1 git push origin main`.
 
   Der Hook ist schwächer als serverseitiger Schutz — er wirkt nur auf Rechnern, die ihn aktiviert haben. Er fängt aber den Fall, um den es geht: den versehentlichen Push. Sobald das Repo öffentlich wird oder ein Pro-Plan existiert, gehört zusätzlich echte Branch Protection auf `main`.
-- **⚠️ Im Auto-Mode: bei echten Blockern aktiv anklopfen, nicht nur im Chat warten.**
-  Läuft die Session im Auto-Mode, entscheidet der Agent die meisten Rückfragen selbst und macht weiter. Bei drei eng gefassten Fällen reicht das nicht — fehlende Credentials/Setup, die in `.claude/rules/security.md` bereits geforderten Pflicht-Freigaben (RLS, Auth-Flow), Account-/Kosten-Aktionen mit externer Wirkung (erster Deploy, PR steht auf ready for review und wartet auf Merge, Merge nach main). Ist der Nutzer dabei nicht am Rechner, fällt eine unbeantwortete Chat-Frage sonst nicht auf.
+- **⚠️ Im Auto-Mode: bei echten Blockern aktiv anklopfen, Phasenübergänge laufen automatisch durch.**
+  Läuft die Session im Auto-Mode, entscheidet der Agent die meisten Rückfragen selbst und macht weiter. Bei vier eng gefassten Fällen reicht das nicht — fehlende Credentials/Setup, die in `.claude/rules/security.md` bereits geforderten Pflicht-Freigaben (RLS, Auth-Flow), Account-/Kosten-Aktionen mit externer Wirkung (erster Deploy, PR steht auf ready for review und wartet auf Merge, Merge nach main), und der Übergang `/tasks` → `/build` (ab hier entsteht Code). Ist der Nutzer dabei nicht am Rechner, fällt eine unbeantwortete Chat-Frage sonst nicht auf.
 
-  Volle Trigger- und Retry-Logik (Push-Benachrichtigung + wiederholter 3-Minuten-Check per `CronCreate`, Backoff auf 30 Minuten nach 15 Minuten) steht in `.claude/rules/autonomous.md` und nicht in `.claude/rules/general.md` bzw. `security.md`, weil diese beiden Dateien **managed** sind und bei `create-ai-eng-app update` überschrieben werden. `autonomous.md` ist wie `instincts.md` eine eigene, nicht verwaltete Datei.
+  Zusätzlich laufen `/write-spec` → `/architecture` → `/tasks`, `/build` → `/qa` sowie der `/qa` → `/build`-Bugfix-Loop ohne Chat-Bestätigung durch (überschreibt `general.md` → „Handoffs Between Skills" für genau diese Übergänge) — jeweils mit einer kurzen Info-Nachricht statt einer Blockade.
+
+  Volle Trigger- und Retry-Logik (Slack-Direktnachricht + wiederholter 3-Minuten-Check per `CronCreate`, Backoff auf 30 Minuten nach 15 Minuten) steht in `.claude/rules/autonomous.md` und nicht in `.claude/rules/general.md` bzw. `security.md`, weil diese beiden Dateien **managed** sind und bei `create-ai-eng-app update` überschrieben werden. `autonomous.md` ist wie `instincts.md` eine eigene, nicht verwaltete Datei.
+
+  **Setup einmalig nötig, sonst wirkungslos:** die Slack-Member-ID in `autonomous.md` → „Slack-Ziel" eintragen und den Slack-MCP-Server autorisieren — ohne beides läuft der Versand ins Leere, siehe dort.
 - **shadcn/ui first:** NEVER create custom versions of installed shadcn components
 - **App shell:** navigation, layout regions, and the page pattern live in `docs/app-shell.md` and belong to the feature recorded there. Reuse those components — never add a second sidebar, header, or nav inside a feature. Changing how the shell behaves is a `/refine` on its owning feature.
 - **Parallel build:** `/build` runs file-disjoint [P] tasks from `tasks.md` as isolated subagents
