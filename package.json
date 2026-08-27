@@ -19,7 +19,8 @@
     "test:e2e:report": "playwright show-report",
     "bootstrap": "bash scripts/bootstrap.sh",
     "kuma:register": "tsx scripts/kuma-register.ts",
-    "kuma:cleanup": "tsx scripts/kuma-cleanup.ts"
+    "kuma:cleanup": "tsx scripts/kuma-cleanup.ts",
+    "slack:notify": "tsx scripts/slack-notify.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

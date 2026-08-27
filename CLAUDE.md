@@ -147,9 +147,9 @@ docs/
 
   Zusätzlich laufen `/write-spec` → `/architecture` → `/tasks`, `/build` → `/qa` sowie der `/qa` → `/build`-Bugfix-Loop ohne Chat-Bestätigung durch (überschreibt `general.md` → „Handoffs Between Skills" für genau diese Übergänge) — jeweils mit einer kurzen Info-Nachricht statt einer Blockade.
 
-  Volle Trigger- und Retry-Logik (Slack-Direktnachricht + wiederholter 3-Minuten-Check per `CronCreate`, Backoff auf 30 Minuten nach 15 Minuten) steht in `.claude/rules/autonomous.md` und nicht in `.claude/rules/general.md` bzw. `security.md`, weil diese beiden Dateien **managed** sind und bei `create-ai-eng-app update` überschrieben werden. `autonomous.md` ist wie `instincts.md` eine eigene, nicht verwaltete Datei.
+  Volle Trigger- und Retry-Logik (Slack-Nachricht + wiederholter 3-Minuten-Check per `CronCreate`, Backoff auf 30 Minuten nach 15 Minuten) steht in `.claude/rules/autonomous.md` und nicht in `.claude/rules/general.md` bzw. `security.md`, weil diese beiden Dateien **managed** sind und bei `create-ai-eng-app update` überschrieben werden. `autonomous.md` ist wie `instincts.md` eine eigene, nicht verwaltete Datei.
 
-  **Setup einmalig nötig, sonst wirkungslos:** die Slack-Member-ID in `autonomous.md` → „Slack-Ziel" eintragen und den Slack-MCP-Server autorisieren — ohne beides läuft der Versand ins Leere, siehe dort.
+  **Setup einmalig nötig, sonst wirkungslos:** eine eigene Slack-App mit Bot Token Scope `chat:write` anlegen, im Workspace installieren, in den Ziel-Channel einladen, dann `SLACK_BOT_TOKEN` und `SLACK_NOTIFY_CHANNEL_ID` in `.env.local` eintragen — siehe `autonomous.md` → „Slack-Ziel". **Nicht** die persönliche claude.ai-Slack-Verbindung nutzen: die sendet als du selbst, und Slack benachrichtigt nie für eigene Nachrichten (getestet, lautlos in jeder Konfiguration).
 - **shadcn/ui first:** NEVER create custom versions of installed shadcn components
 - **App shell:** navigation, layout regions, and the page pattern live in `docs/app-shell.md` and belong to the feature recorded there. Reuse those components — never add a second sidebar, header, or nav inside a feature. Changing how the shell behaves is a `/refine` on its owning feature.
 - **Parallel build:** `/build` runs file-disjoint [P] tasks from `tasks.md` as isolated subagents
