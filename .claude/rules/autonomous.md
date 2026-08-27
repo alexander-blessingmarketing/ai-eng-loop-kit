@@ -8,6 +8,8 @@ Versand läuft über `scripts/slack-notify.ts` (eigene Slack-App mit Bot Token S
 
 Setup (einmalig): Slack-App unter [api.slack.com/apps](https://api.slack.com/apps) anlegen (Template „Blank app"), Bot Token Scope `chat:write` hinzufügen, im Workspace installieren, Bot in den Ziel-Channel einladen. Danach `SLACK_BOT_TOKEN` und `SLACK_NOTIFY_CHANNEL_ID` in `.env.local` eintragen (Platzhalter in `.env.local.example` dokumentiert). Fehlt einer der beiden Werte, meldet das Script das über Exit-Code + stderr — siehe Schritt 2 unten.
 
+Optional: `SLACK_NOTIFY_USER_ID` markiert dich per `<@ID>`-Mention in der Nachricht — sinnvoll, sobald der Channel nicht mehr nur von dir genutzt wird, damit weiterhin die richtige Person angesprochen wird statt nur der Channel allgemein.
+
 ## Wann diese Regel gilt
 
 Nur während die Session im Auto-Mode läuft (system-seitig als aktiv markiert). Ist der Auto-Mode aus, gilt ausschließlich `.claude/rules/general.md` → „Human-in-the-Loop" — keine aktive Benachrichtigung, nur die Chat-Frage.
