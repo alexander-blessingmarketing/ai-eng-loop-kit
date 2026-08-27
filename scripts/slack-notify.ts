@@ -4,6 +4,9 @@
  *
  * Aufruf:  npx tsx scripts/slack-notify.ts "<Nachricht>"
  * Env:     SLACK_BOT_TOKEN, SLACK_NOTIFY_CHANNEL_ID
+ * Optional: SLACK_NOTIFY_USER_ID — stellt `<@ID>` vor die Nachricht, damit
+ *           die richtige Person auch dann benachrichtigt wird, wenn der
+ *           Channel später von mehreren Leuten genutzt wird.
  */
 
 import { readFileSync } from 'node:fs'
@@ -44,13 +47,16 @@ async function main(): Promise<void> {
     process.exit(1)
   }
 
+  const userId = process.env.SLACK_NOTIFY_USER_ID
+  const text = userId ? `<@${userId}> ${message}` : message
+
   const res = await fetch('https://slack.com/api/chat.postMessage', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json; charset=utf-8',
     },
-    body: JSON.stringify({ channel, text: message }),
+    body: JSON.stringify({ channel, text }),
   })
 
   const data = (await res.json()) as SlackPostMessageResponse
