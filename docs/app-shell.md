@@ -38,7 +38,11 @@ Entfällt — kein Login, kein Unterschied zwischen signed-in/signed-out.
 
 ## Shell-Komponenten
 
-_Wird von `/architecture` beim Entwurf von PROJ-1 ergänzt, sobald die konkreten Komponenten feststehen._
+| Komponente | Datei | Zweck |
+|-----------|------|---------|
+| PageHeader | `src/components/page-header.tsx` | Einheitlicher Seitenkopf (Titel, optionaler Action-Button) — von PROJ-1 und PROJ-2 geteilt |
+| ErrorState | `src/components/error-state.tsx` | Einheitliche Fehleranzeige mit Retry-Button — von PROJ-1 und PROJ-2 geteilt |
+| EmptyState | `src/components/empty-state.tsx` | Einheitlicher Leerzustand-Hinweistext — von PROJ-1 und PROJ-2 geteilt |
 
 ---
 
