@@ -81,3 +81,8 @@ Keine neuen externen Pakete nötig:
 ## Offene Fragen
 
 Keine — alle Punkte sind durch das Product-Decision-Log in `spec.md` und die obigen technischen Entscheidungen abgedeckt.
+
+## Umsetzungsnotizen (aus /build)
+
+- **`src/proxy.ts` musste angepasst werden.** Der Scaffold enthält einen Supabase-Auth-Gate, der ohne konfiguriertes Supabase alle nicht-öffentlichen Routen auf `/login` umleitet — auch `/api/repos`, obwohl dieses Projekt kein Supabase/Login nutzt (`stack.backend: localstorage`, PRD-Constraint "Kein Login/Accounts"). `/api/repos` wurde zur `publicRoutes`-Liste hinzugefügt, damit die Route tatsächlich erreichbar ist. Das ist eine reine Bugfix-Anpassung an bestehendem Scaffold-Code, keine Änderung an PROJ-1s eigenem Datenmodell.
+- Die Felder `isArchived`/`isFork` aus dem Datenmodell landen nicht im öffentlichen `Repo`-Typ (`src/lib/github/types.ts`) — sie werden nur intern im GitHub-Client zum Filtern gebraucht (`GithubRepoRaw`) und sind für die UI irrelevant. Funktional identisch zum Design, nur sauberer geschnitten.

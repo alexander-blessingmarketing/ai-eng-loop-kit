@@ -13,6 +13,12 @@ const publicRoutes = [
   "/login",
   "/api/health",
 
+  // PROJ-1 (Repo-Übersicht): rein lokales Ein-Personen-Tool ohne Login/Accounts
+  // (siehe docs/PRD.md → Constraints). Der Supabase-Auth-Gate oben greift sonst
+  // auch hier, obwohl dieses Projekt gar kein Supabase nutzt (stack.backend =
+  // localstorage).
+  "/api/repos",
+
   // Dateien, die per Definition ohne Anmeldung erreichbar sein muessen.
   //
   // Der Matcher unten schliesst nur Bilder und /_next aus — eine .txt oder .xml

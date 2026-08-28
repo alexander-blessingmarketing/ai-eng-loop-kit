@@ -7,8 +7,8 @@ import { PostHogPageView } from "@/components/posthog-pageview";
 import { CookieConsent } from "@/components/cookie-consent";
 
 export const metadata: Metadata = {
-  title: "AI Engineering Kit",
-  description: "Next.js + Supabase + Vercel — Basis mit Observability und Monitoring",
+  title: "Repo-Übersicht",
+  description: "Lokales Dashboard für den Überblick über die eigenen GitHub-Repos",
 };
 
 export default function RootLayout({
@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de">
+    <html lang="de" className="dark">
       <body className="antialiased">
         <PostHogProvider>
           {/* useSearchParams braucht eine Suspense-Grenze, sonst wird die
