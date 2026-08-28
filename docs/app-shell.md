@@ -20,7 +20,7 @@ Owner: keine — Shell ist trivial. Das Tool besteht aus einer Repo-Liste (PROJ-
 ## Layout-Regionen
 
 - **Sidebar:** keine — kein Bedarf bei nur zwei Ansichten
-- **Header:** Seitentitel (Repo-Name in der Detailansicht), kein primärer Action-Button nötig
+- **Header:** Seitentitel (Repo-Name in der Detailansicht); die Detailansicht nutzt den optionalen Action-Slot für einen Zurück-Link zur Repo-Liste (PROJ-2, AC-4)
 - **Content:** die Repo-Liste bzw. das Repo-Detail
 - **Mobile:** nicht relevant, rein lokales Desktop-Tool
 
@@ -41,7 +41,7 @@ Entfällt — kein Login, kein Unterschied zwischen signed-in/signed-out.
 | Komponente | Datei | Zweck |
 |-----------|------|---------|
 | PageHeader | `src/components/page-header.tsx` | Einheitlicher Seitenkopf (Titel, optionaler Action-Button) — von PROJ-1 und PROJ-2 geteilt |
-| ErrorState | `src/components/error-state.tsx` | Einheitliche Fehleranzeige mit Retry-Button — von PROJ-1 und PROJ-2 geteilt |
+| ErrorState | `src/components/error-state.tsx` | Einheitliche Fehleranzeige, Retry-Button optional (fehlt z. B. bei "nicht gefunden") — von PROJ-1 und PROJ-2 geteilt |
 | EmptyState | `src/components/empty-state.tsx` | Einheitlicher Leerzustand-Hinweistext — von PROJ-1 und PROJ-2 geteilt |
 
 ---
