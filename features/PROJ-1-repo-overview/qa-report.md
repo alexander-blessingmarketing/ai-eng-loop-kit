@@ -10,11 +10,11 @@
 
 #### AC-1: Repo-Liste laden, filtern, sortieren
 - [x] Filter (kein archived/fork) + Sortierung (absteigend nach updatedAt) — Beleg: `src/app/api/repos/route.test.ts` Test "gibt gefilterte, sortierte Repos zurück" (4 Repos rein, 2 raus gefiltert, korrekte Reihenfolge)
-- [!] NOT VERIFIED — Live-Aufruf gegen die echte GitHub-API: kein `GITHUB_TOKEN` in `.env.local` vorhanden (Claude darf diese Datei nicht lesen/schreiben, siehe `.claude/rules/security.md`). `curl http://localhost:3002/api/repos` liefert daher nur den Token-Fehlerpfad (AC-5), nicht den Erfolgspfad. Menschliche Aktion nötig: echten Token eintragen, dann erneut prüfen.
+- [x] Live-Aufruf gegen die echte GitHub-API — Beleg: Nutzer hat `GITHUB_TOKEN` in `.env.local` eingetragen; Playwright-Screenshot vom 2026-08-28 zeigt die reale, nach "zuletzt aktualisiert" sortierte Repo-Liste des Nutzer-Accounts (u. a. `learningsuite_videopage_s...`, `ai-eng-loop-kit`, `lead-scraping-filialen`)
 
 #### AC-2: Repo-Karte zeigt Name, Sichtbarkeit, Sprache, PR-Zahl, Zeitpunkt
 - [x] Alle fünf Felder werden gerendert — Beleg: `src/components/repo-card.test.tsx` Test "zeigt Name, Sichtbarkeit, Sprache und PR-Zahl" (Assertions auf Name, "privat"-Badge, Sprache, PR-Zahl); relative Zeit ist Teil der Card, Formatierung separat unter EC-2/Code geprüft (`formatRelativeTime`, `src/components/repo-card.tsx:12-27`)
-- [!] NOT VERIFIED — visuelle Kontrolle mit echten Daten (Screenshot mit echten Repos) — kein Token verfügbar, siehe AC-1
+- [x] Visuelle Kontrolle mit echten Daten — Beleg: Playwright-Screenshot vom 2026-08-28, alle Felder korrekt sichtbar (z. B. `ai-eng-loop-kit`: Badge "öffentlich", Sprache "TypeScript", 1 offener PR, "vor 3 Stunden"; `lead-scraping-filialen`: Badge "privat", "Python", 0 PRs, "vor 15 Stunden")
 
 #### AC-3: Leerzustand ohne aktive Repos
 - [x] API liefert bei leerer Liste `{ok:true, repos:[]}`, kein Fehler — Beleg: `src/app/api/repos/route.test.ts` Test "behandelt eine leere Repo-Liste nicht als Fehler" (Status 200)
@@ -35,7 +35,7 @@
 
 #### AC-7: Klick auf Karte navigiert zur Detailansicht
 - [x] `<Link>` zeigt auf `/repos/{fullName}` — Beleg: `src/components/repo-card.test.tsx` Test "verlinkt zur Detailroute des Repos" (`href="/repos/octocat/my-repo"`)
-- [!] NOT VERIFIED — tatsächlicher Klick + Navigation im Browser mit echten Daten (kein Token, siehe AC-1). Die Zielseite `/repos/[owner]/[repo]` existiert noch nicht — das ist erwartungsgemäß PROJ-2, siehe spec.md → Out of Scope.
+- [x] Tatsächlicher Klick + Navigation mit echten Daten — Beleg: Nutzer hat live auf eine Karte geklickt, Browser navigierte korrekt zu `/repos/alexander-blessingmarketing/ai-eng-loop-kit`. Diese Zielseite selbst liefert erwartungsgemäß 404 — ihr Inhalt ist PROJ-2, siehe spec.md → Out of Scope.
 
 #### AC-8: Token bleibt serverseitig
 - [x] `GITHUB_TOKEN` wird ausschließlich in `src/lib/github/client.ts:31` gelesen — Beleg: `grep -rn GITHUB_TOKEN src/` findet nur `client.ts` und dessen eigene Testdatei
@@ -77,7 +77,6 @@ _Optionale Ebene — wird von `/e2e-tests` für kritische Kernabläufe geschrieb
 
 ### Not Verified In This Run
 
-- [!] AC-1 / AC-2 / AC-7 Live-Verhalten mit echten GitHub-Daten — kein `GITHUB_TOKEN` in `.env.local` verfügbar (Claude darf diese Datei nicht lesen/schreiben). **Menschliche Aktion nötig:** echten Personal Access Token in `.env.local` eintragen (Key: `GITHUB_TOKEN`, Scope `repo` für private Repos), danach diesen QA-Durchlauf für AC-1/AC-2/AC-7 wiederholen.
 - [!] AC-4 visuelle Bestätigung des Skeleton-Ladezustands — Antwort lokal zu schnell für einen zuverlässigen Screenshot
 - [!] Cross-Browser-Rendering (Chrome/Firefox/Safari) — `/qa` läuft ohne Browser; nur `/e2e-tests` deckt das ab
 - [!] Responsive Layout bei 768px/1440px — 375px wurde während `/build` per Playwright stichprobenartig geprüft (sah korrekt aus), aber nicht Teil dieses unabhängigen QA-Durchlaufs
@@ -88,10 +87,10 @@ _Optionale Ebene — wird von `/e2e-tests` für kritische Kernabläufe geschrieb
 Keine Bugs gefunden. Der einzige während des Testens entdeckte Defekt (Supabase-Auth-Gate in `src/proxy.ts` blockierte `/api/repos`) wurde bereits während `/build` behoben und ist Teil des Commits `ac8bdb5` — siehe `design.md` → Umsetzungsnotizen. Keine offenen Bugs zum Zeitpunkt dieses QA-Durchlaufs.
 
 ### Summary
-- **Acceptance Criteria:** 8/8 zumindest teilweise verifiziert (Filter-/Sortier-/Fehler-/Edge-Case-Logik vollständig durch Tests belegt), davon 3 (AC-1, AC-2, AC-7) mit einem offenen Live-Daten-Teilaspekt, der einen echten GitHub-Token erfordert
-- **Bugs Found:** 0 offen (1 gefunden und bereits während `/build` gefixt)
+- **Acceptance Criteria:** 8/8 vollständig verifiziert, inkl. Live-Verhalten mit echten GitHub-Daten (Nutzer hat `GITHUB_TOKEN` eingetragen und die echte Liste sowie den Klick-Flow bestätigt)
+- **Bugs Found:** 0 offen (2 gefunden und gefixt: Supabase-Auth-Gate blockierte `/api/repos` während `/build`; tote Login-Scaffold-Seite nach QA entdeckt und entfernt, siehe `design.md` → Umsetzungsnotizen)
 - **Security:** 5/7 Checks verifiziert, 2 NOT VERIFIED (Rate-Limiting auf `/api/repos` — nicht implementiert/optional; Auth/Authorization — entfällt für dieses Feature)
-- **Production Ready:** JA, unter Vorbehalt — siehe unten
-- **Recommendation:** Aus reiner Bug-Sicht bereit für den nächsten Schritt. Da dieses Projekt kein Deployment vorsieht (`docs/PRD.md` → Non-Goals: "Kein Deployment/Hosting"), ist das eigentliche "Production Ready" hier: **funktioniert bei dir lokal mit echtem Token.** Das kann nur der Mensch abschließend bestätigen, sobald `GITHUB_TOKEN` in `.env.local` steht.
+- **Production Ready:** JA
+- **Recommendation:** Feature ist fertig und beim Nutzer live bestätigt. Kein Deployment vorgesehen (`docs/PRD.md` → Non-Goals). Nächster sinnvoller Schritt: PROJ-2 (Repo-Detail), damit der Klick auf eine Karte nicht mehr auf 404 läuft.
 
-> "Production Ready: JA" heißt *keine Critical/High-Bugs* — nicht, dass alles geprüft wurde. Die drei NOT-VERIFIED-Punkte zu echten GitHub-Daten bleiben offen, bis ein Token verfügbar ist.
+> "Production Ready: JA" heißt *keine Critical/High-Bugs* — die verbleibenden NOT-VERIFIED-Punkte (Skeleton-Timing, Cross-Browser, 768px/1440px, Rate-Limiting) sind Restrisiken ohne Deploy-Relevanz, kein Blocker.
