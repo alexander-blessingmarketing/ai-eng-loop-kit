@@ -10,7 +10,7 @@
   "platform": "web",
   "stack": {
     "framework": "nextjs",
-    "backend": null,
+    "backend": "localstorage",
     "test": "vitest",
     "e2e": "playwright",
     "ui": "shadcn",

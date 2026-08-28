@@ -1,38 +1,37 @@
-# Data Model
+# Datenmodell
 
-> The app-wide map of **what data this product stores and how it connects** — the shared blueprint every feature's tables conform to.
+> Die projektweite Karte dessen, **welche Daten dieses Produkt verwaltet und wie sie zusammenhängen** — der gemeinsame Bauplan, an dem sich die Tabellen jedes Features orientieren.
 >
-> - Created by `/init` (the first holistic pass: entities + relationships).
-> - Refined by `/architecture` as each feature is designed.
-> - **Altitude:** entities, relationships, and ownership live here (product-level, anyone can read them). Column types, indexes, and exact foreign keys are decided per feature in that feature's `design.md` — not here.
+> - Erstellt von `/init` (der erste ganzheitliche Durchgang: Entitäten + Beziehungen).
+> - Verfeinert von `/architecture`, während jedes Feature entworfen wird.
+> - **Flughöhe:** Entitäten, Beziehungen und Besitzverhältnisse gehören hierher (Produkt-Ebene, für alle lesbar). Spaltentypen, Indizes und exakte Fremdschlüssel werden pro Feature in dessen `design.md` entschieden — nicht hier.
 
-## Entities
+## Entitäten
 
-_Each entity is a kind of thing the app stores (a real-world noun). List the ones you know so far with a one-line purpose and who owns or can see it. No column types — just the thing and what it's for._
+_Jede Entität ist eine Art von Ding, das die App verwaltet (ein Substantiv aus der realen Welt). Hier alle bekannten mit einem kurzen Zweck und wer sie besitzt oder einsehen kann._
 
-| Entity | What it represents | Owned by / who can see it |
-|--------|--------------------|---------------------------|
-| _profiles_ | _A user's account profile_ | _the user themselves_ |
-| _..._ | _..._ | _..._ |
+| Entität | Was sie darstellt | Besitzer / wer sieht sie |
+|---------|--------------------|---------------------------|
+| Repository | Ein GitHub-Repo des Nutzers — Name, Sprache, zuletzt aktualisiert, Anzahl offener PRs | Live von der GitHub-API, nicht persistiert; nur der Nutzer selbst |
+| PullRequest | Eine PR innerhalb eines Repos — Titel, Status (offen/geschlossen), Autor, Datum | Live von der GitHub-API, nicht persistiert; nur der Nutzer selbst |
+| Commit | Ein Commit innerhalb eines Repos — Message, Autor, Datum, Hash | Live von der GitHub-API, nicht persistiert; nur der Nutzer selbst |
 
-## Relationships
+## Beziehungen
 
-_How the entities connect, in plain language. This is where coherence comes from — get the connections right once, up front._
+_Wie die Entitäten zusammenhängen, in einfachen Worten. Hier entsteht Kohärenz — die Verbindungen einmal am Anfang richtig hinbekommen._
 
-- _A profile has many ..._
-- _Each ... belongs to exactly one ..._
-- _A ... can have many ..._
+- Ein Repository hat viele PullRequests
+- Ein Repository hat viele Commits
+- Es gibt keine eigene Datenbank: alle drei Entitäten werden bei jedem Aufruf live von der GitHub-API geladen, nichts wird lokal gespeichert
 
-## Diagram (optional)
-
-_A simple text sketch of the model, filled in as it firms up._
+## Diagramm (optional)
 
 ```
-profiles
-  └─ owns many ...
-        └─ has many ...
+Repository
+  ├─ hat viele PullRequests
+  └─ hat viele Commits
 ```
 
 ---
 
-_This is a living document. When `/architecture` designs a feature that introduces or changes an entity, it updates this map first, so later features build against an accurate picture. Run `/init` to create the first version from your feature map._
+_Dies ist ein lebendes Dokument. Wenn `/architecture` ein Feature entwirft, das eine Entität einführt oder ändert, aktualisiert es zuerst diese Karte, damit spätere Features auf einem korrekten Bild aufbauen._

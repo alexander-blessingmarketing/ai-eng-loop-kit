@@ -1,24 +1,27 @@
-# Feature Index
+# Feature-Index
 
-> Central tracking for all features. Updated by skills automatically.
+> Zentrale Übersicht aller Features. Wird automatisch von den Skills aktualisiert.
 
-## Status Legend
-- **Roadmap** - `/init` done, feature identified in feature map, no spec file yet
-- **Planned** - `/write-spec` done, full spec written, architecture not yet designed
-- **Architected** - `/architecture` done, tech design approved, ready to build
-- **Tasked** - `/tasks` done, tasks.md approved, ready to build
-- **In Progress** - `/build` active or completed, not yet in QA
-- **In Review** - `/qa` active, testing in progress
-- **Approved** - `/qa` passed, no critical/high bugs, ready to deploy
-- **Deployed** - `/deploy` done, live in production
+## Status-Legende
+- **Roadmap** - `/init` fertig, Feature in der Feature-Map erfasst, noch keine Spec-Datei
+- **Planned** - `/write-spec` fertig, vollständige Spec geschrieben, Architektur noch nicht entworfen
+- **Architected** - `/architecture` fertig, technisches Design genehmigt, bereit zum Bauen
+- **Tasked** - `/tasks` fertig, tasks.md genehmigt, bereit zum Bauen
+- **In Progress** - `/build` aktiv oder abgeschlossen, noch nicht in QA
+- **In Review** - `/qa` aktiv, Testing läuft
+- **Approved** - `/qa` bestanden, keine kritischen/hohen Bugs, bereit zum Deploy
+- **Deployed** - `/deploy` fertig, live in Produktion
 
 ## Features
 
-> The **Spec** column links to the feature **folder** (`features/PROJ-X-name/`), not a single file. Each folder contains `spec.md`, `design.md`, `tasks.md`, and `qa-report.md`.
+> Die Spalte **Spec** verlinkt zum Feature-**Ordner** (`features/PROJ-X-name/`), nicht zu einer einzelnen Datei. Jeder Ordner enthält `spec.md`, `design.md`, `tasks.md` und `qa-report.md`.
 
-| ID | Feature | Status | Spec | Created |
-|----|---------|--------|------|---------|
+| ID | Feature | Status | Spec | Erstellt |
+|----|---------|--------|------|----------|
+| PROJ-1 | Repo-Übersicht | Roadmap | - | 2026-08-28 |
+| PROJ-2 | Repo-Detail | Roadmap | - | 2026-08-28 |
+| PROJ-3 | Suche/Filter in Repo-Liste | Roadmap | - | 2026-08-28 |
 
 <!-- Add features above this line -->
 
-## Next Available ID: PROJ-1
+## Nächste verfügbare ID: PROJ-4

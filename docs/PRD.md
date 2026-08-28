@@ -1,29 +1,32 @@
 # Product Requirements Document
 
 ## Vision
-_Describe what you are building and why._
+Ein minimalistisches, rein lokales Dashboard, das auf einen Blick zeigt, was in den eigenen GitHub-Repos passiert — Name, offene PRs, letzte Commits und Historie — ohne dass man dafür GitHub selbst durchklicken muss.
 
 ## Target Users
-_Who will use this product? Describe their needs and pain points._
+Ausschließlich der Entwickler selbst (Ein-Personen-Tool, kein Multi-User). Jemand mit mehreren aktiven Repos, der schnell den Überblick behalten will, ohne mehrere GitHub-Tabs offen zu haben.
 
 ## Core Features (Roadmap)
 
 | Priority | Feature | Status |
 |----------|---------|--------|
-| P0 (MVP) | _Feature 1_ | Planned |
-| P0 (MVP) | _Feature 2_ | Planned |
-| P1 | _Feature 3_ | Planned |
-| P2 | _Feature 4_ | Planned |
+| P0 (MVP) | Repo-Übersicht — Liste aller Repos (live von GitHub API), sortiert nach zuletzt aktualisiert, mit Kennzahlen wie letzter Commit, Anzahl offener PRs, Sprache | Planned |
+| P0 (MVP) | Repo-Detail — Klick auf ein Repo zeigt Commit-Historie und PR-Liste (offen + zuletzt geschlossen) im Detail | Planned |
+| P1 | Suche/Filter in der Repo-Liste (nach Name, Sprache) | Planned |
 
 ## Success Metrics
-_How will you measure success? (e.g., user signups, retention, task completion rate)_
+Kein Wachstums-/Nutzerziel (Ein-Personen-Tool). Erfolg = du öffnest es regelmäßig statt github.com direkt, weil es schneller den Überblick gibt.
 
 ## Constraints
-_Budget, timeline, technical limitations, team size._
+- Kein Backend/Datenbank — alle Daten live von der GitHub-API, keine eigene Persistenz
+- Nur lokal (`npm run dev`), kein Deploy, kein Hosting
+- Kein Login/Accounts — Zugriff auf GitHub über einen Personal Access Token (Details dazu bei `/architecture`)
+- Design-System: siehe `docs/design-system.md` (Dark-only, Cyberpunk)
+- Nebenprojekt, kein festes Datum
 
 ## Non-Goals
-_What are you explicitly NOT building in this version?_
-
----
-
-Run `/init` to set up this PRD and feature map, then `/write-spec` to create detailed feature specifications for each item in the roadmap above.
+- Keine Mehrbenutzer-Unterstützung, keine Accounts
+- Keine schreibenden Aktionen (kein Mergen/Kommentieren von PRs aus dem Tool heraus)
+- Kein Deployment/Hosting, keine öffentliche URL
+- Keine eigene Datenhistorie über das hinaus, was die GitHub-API selbst liefert
+- Keine Benachrichtigungen/Alerts
