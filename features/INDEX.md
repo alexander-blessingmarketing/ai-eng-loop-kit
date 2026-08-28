@@ -18,7 +18,7 @@
 
 | ID | Feature | Status | Spec | Erstellt |
 |----|---------|--------|------|----------|
-| PROJ-1 | Repo-Übersicht | Architected | [features/PROJ-1-repo-overview/](features/PROJ-1-repo-overview/) | 2026-08-28 |
+| PROJ-1 | Repo-Übersicht | Tasked | [features/PROJ-1-repo-overview/](features/PROJ-1-repo-overview/) | 2026-08-28 |
 | PROJ-2 | Repo-Detail | Roadmap | - | 2026-08-28 |
 | PROJ-3 | Suche/Filter in Repo-Liste | Roadmap | - | 2026-08-28 |
 
