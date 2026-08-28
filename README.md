@@ -50,7 +50,7 @@ npm run dev       # Start the dev server → http://localhost:3000
 
 ## The Workflow
 
-Development runs in phases, each driven by a skill. Handoffs are always user-initiated — a skill suggests the next step, you run it when ready.
+Development runs in phases, each driven by a skill. Handoffs are user-initiated by default — a skill suggests the next step, you run it when ready. In Auto-Mode (fork addition, see [Deliberate deviations](#deliberate-deviations-from-upstream)), `/write-spec` → `/architecture` → `/tasks` and `/build` → `/qa` proceed automatically instead, each with a Slack notification.
 
 ```
 /init  →  /write-spec  →  /architecture  →  /tasks  →  /build  →  /qa  →  /deploy
@@ -98,6 +98,7 @@ The upstream kit ships the workflow and an empty application shell. This fork fi
 | **Monitoring** | Uptime Kuma registration over Socket.io, `/api/health` endpoint | `scripts/kuma-*.ts` |
 | **CI/CD** | GitHub Actions for lint/typecheck/test and Playwright against the Vercel preview, Dependabot | `.github/workflows/` |
 | **Performance** | Patterns measured in production — server region, image optimizer, prefetch strategy | [docs](docs/architektur/performance.md) |
+| **Autonomous notifications** | Auto-Mode pings a Slack bot on real blockers (missing credentials, RLS/auth approval, account/cost actions, `/tasks` → `/build`) and on automatic phase transitions, with a retry/backoff loop until answered | `scripts/slack-notify.ts` · `.claude/rules/autonomous.md` |
 
 **Known weaknesses are documented, not hidden:** [`docs/BEKANNTE-SCHWAECHEN.md`](docs/BEKANNTE-SCHWAECHEN.md) lists what is deliberately still open — session recording without input masking, missing CSP, IP-only rate limiting, and more.
 
@@ -106,6 +107,7 @@ The upstream kit ships the workflow and an empty application shell. This fork fi
 - **The agent creates the feature branch and opens a draft PR — at the start of the feature, not before `/build`.** Upstream leaves both to the user and only branches before `/build`. Two reasons: `/write-spec`, `/architecture` and `/tasks` all commit *before* that point, so their commits would land on `main` where they can never be pushed; and without a PR nothing runs CI, so the first feedback would arrive hours later, bundled, at the most expensive moment to fix it.
 - **`/deploy` hands over to that pull request instead of merging into `main`.** The E2E workflow triggers only on `pull_request` and tests against the Vercel preview, so a direct merge would silently remove the one gate that catches regressions before production. Enforced locally by `.githooks/pre-push` (activated automatically by `npm install`). See `CLAUDE.md` → Key Conventions.
 - **`docs/decisions/` ships empty on purpose.** ADRs are project-scoped; a base has no situation to decide about. What the base brings along is explained as reference documentation under `docs/architektur/` instead — and your first ADR gets number `0001`.
+- **In Auto-Mode, some skill handoffs run without a chat confirmation.** Upstream's `general.md` says handoffs are "always user-initiated, never automatic." `.claude/rules/autonomous.md` overrides that for exactly two chains — `/write-spec` → `/architecture` → `/tasks`, and `/build` → `/qa` (including the QA bugfix loop back into `/build`) — each with a one-off Slack info message. The `/tasks` → `/build` transition stays a hard stop: it's the point where code starts getting written, and the only remaining human checkpoint before it. Real blockers (missing credentials, RLS/auth approval, account/cost actions) always stop and page Slack with a retry/backoff loop until answered — see `.claude/rules/autonomous.md` for the full mechanism and setup.
 
 ---
 
@@ -181,7 +183,9 @@ Status flow: **Roadmap → Planned → Architected → Tasked → In Progress �
 │   ├── settings.json               Permissions (committed)
 │   ├── rules/                      Auto-applied rules
 │   │   ├── general.md                  Git workflow, feature tracking, status updates
-│   │   └── security.md                 Secrets, headers, auth
+│   │   ├── security.md                 Secrets, headers, auth
+│   │   ├── autonomous.md               [fork] Auto-Mode: Slack blocker/phase-transition notifications
+│   │   └── instincts.md                [fork] Automatic coding behaviors (search-before-create, etc.)
 │   ├── skills/                     Invocable workflows (/command)
 │   │   ├── verify-setup/SKILL.md
 │   │   ├── init/SKILL.md
@@ -209,7 +213,7 @@ Status flow: **Roadmap → Planned → Architected → Tasked → In Progress �
 │   └── BEKANNTE-SCHWAECHEN.md       [fork] Known, deliberate weaknesses
 ├── supabase/
 │   └── migrations/                  Schema changes as .sql files
-├── scripts/                        [fork] Bootstrap + Uptime Kuma registration
+├── scripts/                        [fork] Bootstrap, Uptime Kuma registration, Slack notify
 ├── .github/workflows/              [fork] CI, E2E against preview, deploy
 ├── .githooks/                      [fork] pre-push — blocks direct pushes to main
 ├── tests/                          Playwright E2E tests (added by /e2e-tests)
