@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 interface ErrorStateProps {
   title: string;
   message: string;
-  onRetry: () => void;
+  onRetry?: () => void;
 }
 
 export function ErrorState({ title, message, onRetry }: ErrorStateProps) {
@@ -15,9 +15,11 @@ export function ErrorState({ title, message, onRetry }: ErrorStateProps) {
       <AlertTitle className="font-heading">{title}</AlertTitle>
       <AlertDescription className="space-y-3">
         <p>{message}</p>
-        <Button variant="outline" size="sm" onClick={onRetry}>
-          Erneut versuchen
-        </Button>
+        {onRetry && (
+          <Button variant="outline" size="sm" onClick={onRetry}>
+            Erneut versuchen
+          </Button>
+        )}
       </AlertDescription>
     </Alert>
   );

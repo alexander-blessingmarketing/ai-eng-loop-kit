@@ -84,11 +84,18 @@ _Optionale Ebene — wird von `/e2e-tests` für kritische Kernabläufe geschrieb
 
 ### Bugs Found
 
-Keine Bugs gefunden. Der einzige während des Testens entdeckte Defekt (Supabase-Auth-Gate in `src/proxy.ts` blockierte `/api/repos`) wurde bereits während `/build` behoben und ist Teil des Commits `ac8bdb5` — siehe `design.md` → Umsetzungsnotizen. Keine offenen Bugs zum Zeitpunkt dieses QA-Durchlaufs.
+#### BUG-1 (gefixt): CSP blockierte den Google-Fonts-Import
+- **Severity:** Medium (kein Funktionsausfall, aber das gesamte Design-System — Orbitron/JetBrains Mono aus `docs/design-system.md` — griff nie; die App lief durchgehend auf Fallback-Fonts)
+- **Gefunden bei:** PROJ-2-Verifikation (Browser-Konsole zeigte durchgehend 2 Fehler, die während PROJ-1s eigener QA nicht einzeln inspiziert wurden — Lücke in der eigenen Prüftiefe, hier vermerkt statt verschwiegen)
+- **Ursache:** `src/lib/security-headers.ts` erlaubte in der CSP nur `style-src 'self' 'unsafe-inline'` und `font-src 'self' data:` — der `@import` von `fonts.googleapis.com` in `globals.css` wurde dadurch geblockt
+- **Fix:** `https://fonts.googleapis.com` zu `style-src`, `https://fonts.gstatic.com` zu `font-src` ergänzt — betrifft beide Features gemeinsam (geteilte Datei), verifiziert per Playwright-Screenshot auf `/` und `/repos/[owner]/[repo]`, keine Konsolenfehler mehr
+- **Status:** Gefixt, Teil von PROJ-2s Build-Commits
+
+Keine offenen Bugs zum Zeitpunkt dieses QA-Durchlaufs.
 
 ### Summary
 - **Acceptance Criteria:** 8/8 vollständig verifiziert, inkl. Live-Verhalten mit echten GitHub-Daten (Nutzer hat `GITHUB_TOKEN` eingetragen und die echte Liste sowie den Klick-Flow bestätigt)
-- **Bugs Found:** 0 offen (2 gefunden und gefixt: Supabase-Auth-Gate blockierte `/api/repos` während `/build`; tote Login-Scaffold-Seite nach QA entdeckt und entfernt, siehe `design.md` → Umsetzungsnotizen)
+- **Bugs Found:** 0 offen (3 gefunden und gefixt: Supabase-Auth-Gate blockierte `/api/repos` während `/build`; tote Login-Scaffold-Seite nach QA entdeckt und entfernt; CSP blockierte Google Fonts, siehe BUG-1 oben und `design.md` → Umsetzungsnotizen)
 - **Security:** 5/7 Checks verifiziert, 2 NOT VERIFIED (Rate-Limiting auf `/api/repos` — nicht implementiert/optional; Auth/Authorization — entfällt für dieses Feature)
 - **Production Ready:** JA
 - **Recommendation:** Feature ist fertig und beim Nutzer live bestätigt. Kein Deployment vorgesehen (`docs/PRD.md` → Non-Goals). Nächster sinnvoller Schritt: PROJ-2 (Repo-Detail), damit der Klick auf eine Karte nicht mehr auf 404 läuft.

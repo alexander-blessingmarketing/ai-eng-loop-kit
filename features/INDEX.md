@@ -19,7 +19,7 @@
 | ID | Feature | Status | Spec | Erstellt |
 |----|---------|--------|------|----------|
 | PROJ-1 | Repo-Übersicht | Approved | [features/PROJ-1-repo-overview/](features/PROJ-1-repo-overview/) | 2026-08-28 |
-| PROJ-2 | Repo-Detail | Tasked | [features/PROJ-2-repo-detail/](features/PROJ-2-repo-detail/) | 2026-08-28 |
+| PROJ-2 | Repo-Detail | Approved | [features/PROJ-2-repo-detail/](features/PROJ-2-repo-detail/) | 2026-08-28 |
 | PROJ-3 | Suche/Filter in Repo-Liste | Roadmap | - | 2026-08-28 |
 
 <!-- Add features above this line -->

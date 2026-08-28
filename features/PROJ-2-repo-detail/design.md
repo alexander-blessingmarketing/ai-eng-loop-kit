@@ -80,3 +80,9 @@ Keine neuen externen Pakete — dieselbe Basis wie PROJ-1 (`fetch`, `Intl.Relati
 ## Offene Fragen
 
 Keine.
+
+## Umsetzungsnotizen (aus /build)
+
+- **Gemeinsamer Bug mit PROJ-1 gefunden und gefixt:** Die CSP in `src/lib/security-headers.ts` blockierte den Google-Fonts-`@import` aus `globals.css` (`style-src`/`font-src` erlaubten `fonts.googleapis.com`/`fonts.gstatic.com` nicht) — Orbitron/JetBrains Mono luden seit PROJ-1 nie, die App lief durchgehend auf Fallback-Fonts. Fix betrifft beide Features, siehe `features/PROJ-1-repo-overview/qa-report.md` → BUG-1 für Details.
+- `formatRelativeTime` aus `repo-card.tsx` nach `src/lib/format.ts` extrahiert, da jetzt 3 Aufrufer (RepoCard, CommitSection, PullRequestSection) — keine vorzeitige Abstraktion, sondern Refactor bei echtem zweiten/dritten Bedarf.
+- `ErrorState.onRetry` wie in `design.md` geplant optional gemacht — bei `not_found` wird kein Retry-Button gerendert.

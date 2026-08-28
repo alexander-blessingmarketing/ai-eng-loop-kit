@@ -87,10 +87,15 @@ export function buildCsp(nonce: string): string {
     // Next und next/font setzen inline <style>-Bloecke ohne Nonce; mit reinem
     // 'self' bleibt die Seite ungestylt. Inline-CSS kann keinen Code ausfuehren.
     // Bei Scripts waere derselbe Wert eine ganz andere Nummer.
-    `style-src 'self' 'unsafe-inline'`,
+    // fonts.googleapis.com: PROJ-1 laedt Orbitron/JetBrains Mono per @import in
+    // globals.css (docs/design-system.md) — ohne diesen Origin blockiert die CSP
+    // den Stylesheet-Request und die App faellt lautlos auf Fallback-Fonts zurueck.
+    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
 
     `img-src ${img}`,
-    `font-src 'self' data:`,
+    // fonts.gstatic.com liefert die eigentlichen Font-Dateien, die das
+    // fonts.googleapis.com-Stylesheet referenziert.
+    `font-src 'self' data: https://fonts.gstatic.com`,
 
     // PostHog laeuft ueber den /ingest-Rewrite und ist damit same-origin.
     // Supabase braucht seinen Origin explizit (REST, Auth, Realtime).

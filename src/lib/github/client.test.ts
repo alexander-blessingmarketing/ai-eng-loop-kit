@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchAllRepos, fetchOpenPRCount, GithubApiError } from "./client";
+import { fetchAllRepos, fetchOpenPRCount, fetchRepoDetail, GithubApiError } from "./client";
 
 function jsonResponse(body: unknown, init?: ResponseInit) {
   return new Response(JSON.stringify(body), {
@@ -82,5 +82,81 @@ describe("github client", () => {
     );
     const count = await fetchOpenPRCount("owner/repo");
     expect(count).toBe(3);
+  });
+
+  describe("fetchRepoDetail", () => {
+    function makeCommitRaw(overrides: Partial<Record<string, unknown>> = {}) {
+      return {
+        sha: "abc123",
+        commit: {
+          message: "Fix bug\n\nLonger description here",
+          author: { name: "Ada Lovelace", date: "2026-01-01T00:00:00Z" },
+        },
+        ...overrides,
+      };
+    }
+
+    function makePullRaw(overrides: Partial<Record<string, unknown>> = {}) {
+      return {
+        id: 1,
+        number: 42,
+        title: "Add feature",
+        user: { login: "octocat" },
+        updated_at: "2026-01-01T00:00:00Z",
+        ...overrides,
+      };
+    }
+
+    it("wirft 'not_found', wenn das Repo nicht existiert/sichtbar ist (AC-5)", async () => {
+      vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
+      await expect(fetchRepoDetail("owner", "missing")).rejects.toMatchObject({ type: "not_found" });
+    });
+
+    it("lädt Commits, offene und geschlossene PRs und kürzt die Commit-Message auf die erste Zeile (EC-2)", async () => {
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce(jsonResponse({})) // existence check
+        .mockResolvedValueOnce(jsonResponse([makeCommitRaw()])) // commits
+        .mockResolvedValueOnce(jsonResponse([makePullRaw({ id: 1 })])) // open
+        .mockResolvedValueOnce(jsonResponse([makePullRaw({ id: 2 })])); // closed
+      vi.stubGlobal("fetch", fetchMock);
+
+      const data = await fetchRepoDetail("owner", "repo");
+
+      expect(data.commits).toEqual([
+        { sha: "abc123", titleLine: "Fix bug", authorName: "Ada Lovelace", date: "2026-01-01T00:00:00Z" },
+      ]);
+      expect(data.openPRs).toHaveLength(1);
+      expect(data.closedPRs).toHaveLength(1);
+    });
+
+    it("behandelt 409 auf /commits als leeres Repo statt als Fehler (AC-9)", async () => {
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce(jsonResponse({})) // existence check
+        .mockResolvedValueOnce(new Response(null, { status: 409 })) // commits: empty repo
+        .mockResolvedValueOnce(jsonResponse([]))
+        .mockResolvedValueOnce(jsonResponse([]));
+      vi.stubGlobal("fetch", fetchMock);
+
+      const data = await fetchRepoDetail("owner", "empty-repo");
+
+      expect(data.commits).toEqual([]);
+    });
+
+    it("setzt authorName/authorLogin auf null, wenn GitHub keinen verknüpften Account liefert (EC-1)", async () => {
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce(jsonResponse({}))
+        .mockResolvedValueOnce(jsonResponse([makeCommitRaw({ commit: { message: "x", author: null } })]))
+        .mockResolvedValueOnce(jsonResponse([makePullRaw({ user: null })]))
+        .mockResolvedValueOnce(jsonResponse([]));
+      vi.stubGlobal("fetch", fetchMock);
+
+      const data = await fetchRepoDetail("owner", "repo");
+
+      expect(data.commits[0].authorName).toBeNull();
+      expect(data.openPRs[0].authorLogin).toBeNull();
+    });
   });
 });

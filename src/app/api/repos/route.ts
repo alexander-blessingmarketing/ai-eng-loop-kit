@@ -8,6 +8,10 @@ export const dynamic = "force-dynamic";
 const STATUS_BY_ERROR_TYPE = {
   token: 401,
   unavailable: 503,
+  // "not_found" wird von fetchAllRepos()/fetchOpenPRCount() nie ausgelöst
+  // (die Route braucht kein owner/repo) — nur für Typ-Exhaustivität mit
+  // RepoListErrorType (seit PROJ-2 um "not_found" erweitert).
+  not_found: 404,
 } as const;
 
 export async function GET() {

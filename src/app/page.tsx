@@ -16,6 +16,9 @@ type ViewState =
 const ERROR_TITLES: Record<RepoListError["type"], string> = {
   token: "GitHub-Token fehlt oder ist ungültig",
   unavailable: "GitHub ist gerade nicht erreichbar",
+  // Wird von /api/repos nie ausgelöst (die Route braucht kein owner/repo) —
+  // nur für Typ-Exhaustivität mit RepoListErrorType (seit PROJ-2 erweitert).
+  not_found: "Nicht gefunden",
 };
 
 export default function HomePage() {
